@@ -1,0 +1,52 @@
+---
+- name: Config Percona1
+  template:
+    src: templates/percona1.cnf.j2
+    dest: "{{ mysql_config }}"
+  when: "'{{ ansible_host }}' == '{{ percona1 }}'"
+
+- name: Config Percona2
+  template:
+    src: templates/percona2.cnf.j2
+    dest: "{{ mysql_config }}"
+  when: "'{{ ansible_host }}' == '{{ percona2 }}'"
+
+- name: start mysql@bootstrap
+  service:
+    name: "mysql@bootstrap"
+    state: started
+  when: "'{{ ansible_host }}' == '{{ percona1 }}'"
+
+# - name: Create {{ mysql_database }} database
+#   mysql_db: name="{{ mysql_database }}" state=present login_user=root login_password="{{ mysql_root_password }}"
+
+- name: "Create SST user"
+  mysql_user:
+    login_user: root
+    login_password: "{{ mysql_root_password }}"
+    user: "{{ mysql_user_sst }}"
+    password: "{{ mysql_password_sst }}"
+    priv: "*.*:grant,reload,lock tables,process,replication client"
+  when: "'{{ ansible_host }}' == '{{ percona1 }}'"
+
+# - name: restart mysql@bootstrap
+#   service:
+#     name: "mysql@bootstrap"
+#     state: restarted
+#   when: "'{{ ansible_host }}' == '{{ percona1 }}'"
+
+- name: Start MySQL in Percona2
+  service:
+    name: mysql
+    state: restarted
+  when: "'{{ ansible_host }}' == '{{ percona2 }}'"
+
+
+# - name: get mysqltuner.pl
+#   get_url: url=http://mysqltuner.pl/ dest=mysqltuner.pl
+
+# - name: run mysqltuner
+#   shell: |
+#     ./mysqltuner.pl
+#     root
+#     "{{ mysql_root_password }}"

@@ -1,0 +1,7 @@
+---
+percona1: '192.168.0.107'
+percona2: '192.168.0.125'
+
+garbd: '192.168.0.126'
+
+cluster_name: percona_cluster

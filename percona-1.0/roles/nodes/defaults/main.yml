@@ -1,0 +1,14 @@
+---
+mysql_root_password: Quang12345@#$
+
+# /etc/my.cnf
+mysql_config: /etc/percona-xtradb-cluster.conf.d/wsrep.cnf
+
+cluster_name: percona_cluster
+percona1: '192.168.0.107'
+percona2: '192.168.0.125'
+
+garbd: '192.168.0.126'
+
+mysql_user_sst: 'sstuser'
+mysql_password_sst: 's3cretVT'

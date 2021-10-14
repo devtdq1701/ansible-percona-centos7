@@ -1,0 +1,54 @@
+---
+# - name: Install Package Development Tools
+#   yum:  name={{ item }} state=latest
+#   with_items:
+#     - "@Development Tools"
+#     # - deltarpm
+
+# - name: Update CentOS 7
+#   yum:  name=* state=latest update_cache=yes
+
+- name: Change SELinux mode
+  shell: setenforce 0
+
+- name: Config /etc/selinux/config
+  template:
+    src: "templates/selinux.cnf.j2"
+    dest: "/etc/selinux/config"
+
+- name: Remove MySQL
+  yum: name={{ item }} state=absent
+  with_items:
+    - mysql
+    - mysql-devel
+    - mysql-libs
+
+- name: Add Percona Repository
+  yum: name={{ item }} state=latest
+  with_items:
+    - https://repo.percona.com/yum/percona-release-latest.noarch.rpm
+    - epel-release
+    - Percona-XtraDB-Cluster-57
+    - MySQL-python
+
+- name: Start MySQL service
+  service: name=mysql state=started
+  when: "'{{ ansible_host }}' != '{{ garbd }}'"
+
+- name: Change temp root password
+  shell: |
+    temp_password=$(grep password /var/log/mysqld.log | awk '{print $NF}' | head -n1)
+    mysql_passwd="{{ mysql_root_password }}"
+    echo "ALTER USER 'root'@'localhost' IDENTIFIED BY '$mysql_passwd'; flush privileges;" > reset_pass.sql
+    mysql -u root --password=$temp_password --connect-expired-password < reset_pass.sql
+  when: "'{{ ansible_host }}' != '{{ garbd }}'"
+
+- name: Stopped MySQL
+  service: name=mysql state=stopped
+  when: "'{{ ansible_host }}' != '{{ garbd }}'"
+
+# - name: Config /etc/my.cnf
+#   template:
+#     src: "templates/my.cnf.j2"
+#     dest: "/etc/my.cnf"
+#   notify: stop mysql

@@ -1,0 +1,13 @@
+- name: Install garbd
+  yum: name=Percona-XtraDB-Cluster-garbd-57 state=latest
+  when: "'{{ ansible_host }}' == '{{ garbd }}'"
+
+- name: Config garb file
+  template:
+    src: "templates/garbd.j2"
+    dest: "/etc/sysconfig/garb"
+  when: "'{{ ansible_host }}' == '{{ garbd }}'"
+
+- name: Start garbd
+  service: name=garb state=started
+  when: "'{{ ansible_host }}' == '{{ garbd }}'"

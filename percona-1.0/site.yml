@@ -1,0 +1,9 @@
+---
+- hosts: nodes
+  become: yes
+  user: root
+  roles:
+    - firewalld
+    - install
+    - nodes
+    - garbd

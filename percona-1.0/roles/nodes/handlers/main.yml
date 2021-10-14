@@ -1,0 +1,19 @@
+---
+- name: start mysql
+  service: name=mysql state=started
+
+- name: restart mysql
+  service: name=mysql state=restarted
+
+- name: stop mysql
+  service: name=mysql state=stopped
+
+- name: restart mysql@bootstrap
+  service:
+    name: "mysql@bootstrap"
+    state: restarted
+
+- name: start mysql@bootstrap
+  service:
+    name: "mysql@bootstrap"
+    state: started
